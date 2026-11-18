@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "src/AgentStreak.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ninterface IAgentID {\n    function balanceOf(address account) external view returns (uint256);\n}\n\n/// @title AgentStreak\n/// @notice Daily check-in streak tracker gated on holding an Agent ID.\n/// @dev Deliberately minimal: no owner, no admin, no fees, no token,\n///      no upgradeability, no selfdestruct, no pausing.\ncontract AgentStreak {\n    IAgentID public constant AGENT_ID = IAgentID(0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F);\n    uint256 public constant SECONDS_PER_DAY = 86400;\n\n    mapping(address => uint256) public lastCheckInDay;\n    mapping(address => uint256) public currentStreak;\n    mapping(address => uint256) public longestStreak;\n    mapping(address => uint256) public totalCheckIns;\n\n    event CheckIn(address indexed user, uint256 indexed day, uint256 streak, uint256 totalCheckIns);\n\n    function currentDay() public view returns (uint256) {\n        return block.timestamp / SECONDS_PER_DAY;\n    }\n\n    function checkIn() external {\n        require(AGENT_ID.balanceOf(msg.sender) > 0, \"AgentStreak: no Agent ID\");\n\n        uint256 day = currentDay();\n        require(lastCheckInDay[msg.sender] != day, \"AgentStreak: already checked in today\");\n\n        if (lastCheckInDay[msg.sender] == day - 1) {\n            currentStreak[msg.sender] += 1;\n        } else {\n            currentStreak[msg.sender] = 1;\n        }\n\n        if (currentStreak[msg.sender] > longestStreak[msg.sender]) {\n            longestStreak[msg.sender] = currentStreak[msg.sender];\n        }\n\n        lastCheckInDay[msg.sender] = day;\n        totalCheckIns[msg.sender] += 1;\n\n        emit CheckIn(msg.sender, day, currentStreak[msg.sender], totalCheckIns[msg.sender]);\n    }\n\n    function streakOf(address user) external view returns (uint256) {\n        uint256 day = currentDay();\n        uint256 last = lastCheckInDay[user];\n        if (last == day || (day > 0 && last == day - 1)) {\n            return currentStreak[user];\n        }\n        return 0;\n    }\n\n    function canCheckInToday(address user) external view returns (bool) {\n        return AGENT_ID.balanceOf(user) > 0 && lastCheckInDay[user] != currentDay();\n    }\n}"
+    }
+  },
+  "settings": {
+    "remappings": [
+      ":forge-std/=lib/forge-std/src/"
+    ],
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "metadata": {
+      "useLiteralContent": false,
+      "bytecodeHash": "ipfs",
+      "appendCBOR": true
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode.object",
+          "evm.deployedBytecode.object",
+          "metadata"
+        ]
+      }
+    },
+    "evmVersion": "paris",
+    "viaIR": false,
+    "libraries": {}
+  }
+}
