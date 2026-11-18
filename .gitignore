@@ -1,0 +1,11 @@
+# Build output (Foundry) — contracts/ also has its own .gitignore
+out/
+cache/
+lib/
+node_modules/
+
+# OS / editor cruft
+.DS_Store
+
+# Logs
+*.log

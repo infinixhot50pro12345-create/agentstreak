@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="AgentStreak — check-in harian gratis untuk pemegang Agent ID di BNB Chain. Tanpa biaya, hanya gas.">
+<title>AgentStreak — Check-in harian Agent ID</title>
+<style>
+  :root {
+    --bg: #0a0e13;
+    --bg-glow: #10202a;
+    --card: #111820;
+    --card-2: #16202b;
+    --line: #22303d;
+    --text: #e8eef4;
+    --muted: #93a4b5;
+    --accent: #5eead4;
+    --accent-ink: #04231e;
+    --warn: #fbbf24;
+    --warn-bg: #2a2210;
+    --danger: #f87171;
+    --danger-bg: #2a1416;
+    --ok: #4ade80;
+    --ok-bg: #0f2419;
+    --radius: 16px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background:
+      radial-gradient(120% 60% at 50% -10%, #123039 0%, transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.5;
+    min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: max(20px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom));
+  }
+
+  header { padding: 8px 2px 18px; }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), #3b82f6);
+    display: grid;
+    place-items: center;
+    color: #04231e;
+    font-weight: 800;
+    font-size: 20px;
+    flex: 0 0 auto;
+  }
+
+  h1 {
+    font-size: 26px;
+    line-height: 1.15;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  .tagline {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 10px 2px 0;
+  }
+
+  .chain-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    background: var(--card);
+    border-radius: 999px;
+    padding: 3px 10px;
+    margin-top: 12px;
+  }
+
+  .chain-pill .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px rgba(94, 234, 212, 0.7);
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+
+  .card h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 12px;
+    font-weight: 600;
+  }
+
+  .btn {
+    width: 100%;
+    border: 0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: transform 0.06s ease, opacity 0.15s ease, background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .btn:active:not(:disabled) { transform: scale(0.985); }
+
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  .btn-secondary {
+    background: var(--card-2);
+    color: var(--text);
+    border: 1px solid var(--line);
+  }
+
+  .btn-warn {
+    background: var(--warn);
+    color: #231a02;
+  }
+
+  .msg {
+    border-radius: 12px;
+    padding: 11px 13px;
+    font-size: 14px;
+    margin-top: 12px;
+    border: 1px solid transparent;
+    overflow-wrap: anywhere;
+  }
+
+  .msg:empty { display: none; }
+
+  .msg.info { background: var(--card-2); border-color: var(--line); color: var(--muted); }
+  .msg.warn { background: var(--warn-bg); border-color: #5a4512; color: var(--warn); }
+  .msg.error { background: var(--danger-bg); border-color: #5c262a; color: var(--danger); }
+  .msg.ok { background: var(--ok-bg); border-color: #1d4a31; color: var(--ok); }
+
+  .banner {
+    border-radius: var(--radius);
+    padding: 13px 15px;
+    margin-bottom: 14px;
+    font-size: 14px;
+    display: none;
+  }
+
+  .banner.show { display: block; }
+
+  .banner.warn { background: var(--warn-bg); border: 1px solid #5a4512; color: var(--warn); }
+  .banner.error { background: var(--danger-bg); border: 1px solid #5c262a; color: var(--danger); }
+
+  .banner strong { display: block; margin-bottom: 4px; color: inherit; }
+  .banner .btn { margin-top: 10px; padding: 10px 14px; font-size: 14px; }
+
+  .wallet-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 12px;
+    font-size: 14px;
+  }
+
+  .wallet-row .label { color: var(--muted); }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
+
+  .status-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    margin-top: 12px;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--line);
+    background: var(--card-2);
+    color: var(--muted);
+  }
+
+  .tag.ok { color: var(--ok); border-color: #1d4a31; background: var(--ok-bg); }
+  .tag.bad { color: var(--danger); border-color: #5c262a; background: var(--danger-bg); }
+  .tag.warn { color: var(--warn); border-color: #5a4512; background: var(--warn-bg); }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .stat {
+    background: var(--card-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+
+  .stat .value {
+    font-size: 24px;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat .name {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 4px;
+  }
+
+  .stat .value.zero { color: #5b6b7a; }
+
+  .meta {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+  }
+
+  .board { margin: 0; padding: 0; list-style: none; }
+
+  .board li {
+    display: grid;
+    grid-template-columns: 26px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 2px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+
+  .board li:last-child { border-bottom: 0; }
+
+  .board .rank {
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .board .addr { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .board .streak { font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .board .streak small { color: var(--muted); font-weight: 400; font-size: 11px; }
+
+  .board li.me {
+    background: rgba(94, 234, 212, 0.06);
+    border-radius: 10px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-bottom-color: transparent;
+  }
+
+  .board li.me .addr::after {
+    content: "kamu";
+    font-size: 10px;
+    color: var(--accent);
+    border: 1px solid rgba(94, 234, 212, 0.4);
+    border-radius: 999px;
+    padding: 1px 6px;
+    margin-left: 6px;
+    vertical-align: 1px;
+  }
+
+  .empty {
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+    padding: 18px 8px;
+  }
+
+  footer {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+    padding: 8px 4px 0;
+  }
+
+  footer p { margin: 0 0 8px; }
+  footer .fine { color: #6b7c8c; }
+
+  .hidden { display: none !important; }
+
+  /* Layar kecil banget (HP lama) */
+  @media (max-width: 340px) {
+    h1 { font-size: 22px; }
+    .stat .value { font-size: 20px; }
+    .wrap { padding-left: 12px; padding-right: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true">A</div>
+      <h1>AgentStreak</h1>
+    </div>
+    <p class="tagline">Check-in harian gratis untuk pemegang Agent ID. Sekali sehari, streak tercatat on-chain.</p>
+    <span class="chain-pill"><span class="dot" aria-hidden="true"></span> BNB Chain · chain 56</span>
+  </header>
+
+  <div id="deployBanner" class="banner warn" role="status">
+    <strong>Kontrak belum di-deploy — segera hadir.</strong>
+    Halaman ini belum terhubung ke kontrak AgentStreak. Check-in dinonaktifkan sampai alamat kontrak diisi.
+  </div>
+
+  <div id="networkBanner" class="banner warn" role="status">
+    <strong>Jaringan wallet belum benar.</strong>
+    AgentStreak hanya berjalan di BNB Chain (chain 56). Ganti jaringan di wallet untuk melihat data dan check-in.
+    <button id="switchChainBtn" class="btn btn-warn" type="button">Ganti ke BNB Chain</button>
+  </div>
+
+  <div id="providerBanner" class="banner error" role="status">
+    <strong>Wallet tidak terdeteksi.</strong>
+    Buka halaman ini dari dApp browser di dalam wallet (misalnya wallet yang mendukung BNB Chain), bukan dari browser biasa.
+  </div>
+
+  <!-- Wallet -->
+  <section class="card" aria-labelledby="walletTitle">
+    <h2 id="walletTitle">Wallet</h2>
+    <button id="connectBtn" class="btn btn-primary" type="button">Hubungkan Wallet</button>
+    <div id="walletInfo" class="hidden">
+      <div class="wallet-row">
+        <span class="label">Alamat</span>
+        <span id="walletAddr" class="mono">—</span>
+      </div>
+      <div class="status-line">
+        <span class="label" style="color: var(--muted); font-size: 14px;">Agent ID</span>
+        <span id="agentIdStatus" class="tag">Memeriksa…</span>
+      </div>
+    </div>
+    <div id="walletMsg" class="msg" role="status" aria-live="polite"></div>
+  </section>
+
+  <!-- Streak -->
+  <section class="card" aria-labelledby="streakTitle">
+    <h2 id="streakTitle">Streak kamu</h2>
+
+    <div class="stats">
+      <div class="stat">
+        <div id="statStreak" class="value zero">—</div>
+        <div class="name">Streak</div>
+      </div>
+      <div class="stat">
+        <div id="statLongest" class="value zero">—</div>
+        <div class="name">Terpanjang</div>
+      </div>
+      <div class="stat">
+        <div id="statTotal" class="value zero">—</div>
+        <div class="name">Total check-in</div>
+      </div>
+    </div>
+
+    <button id="checkInBtn" class="btn btn-primary" type="button" disabled>Check-in Hari Ini</button>
+    <div id="checkInMsg" class="msg" role="status" aria-live="polite"></div>
+
+    <div class="meta">
+      <span>Hari ini (UTC): <span id="todayInfo" class="mono">—</span></span>
+      <span>Reset harian: 00:00 UTC (07:00 WIB)</span>
+    </div>
+  </section>
+
+  <!-- Leaderboard -->
+  <section class="card" aria-labelledby="boardTitle">
+    <h2 id="boardTitle">Leaderboard — 10 streak teratas</h2>
+    <div id="boardBox">
+      <p class="empty">Belum ada data.</p>
+    </div>
+    <p class="meta" style="margin-top: 10px;">Hanya alamat terpotong yang ditampilkan. Data dibaca langsung dari event on-chain.</p>
+  </section>
+
+  <footer>
+    <p><strong>Tanpa dana, tanpa token, tanpa biaya.</strong> AgentStreak tidak menyimpan dana siapa pun, tidak menerbitkan token, dan tidak punya admin. Check-in hanya membayar gas jaringan.</p>
+    <p class="fine">Syarat check-in: wallet memegang Agent ID (ERC-721). Hasil check-in adalah streak yang bisa dibaca siapa saja on-chain; tidak ada imbalan finansial yang dijanjikan.</p>
+    <p class="fine">Kontrak: <span id="contractAddr" class="mono">—</span> · Agent ID: <span class="mono">0x60b9…022f</span></p>
+  </footer>
+
+  <noscript>
+    <div class="banner error show" style="margin-top:14px;">
+      <strong>JavaScript nonaktif.</strong> Halaman ini perlu JavaScript untuk terhubung ke wallet.
+    </div>
+  </noscript>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
